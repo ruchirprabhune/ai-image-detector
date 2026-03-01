@@ -1,0 +1,239 @@
+
+═══════════════════════════════════════════════════════════════════════════════
+                        AI IMAGE DETECTOR ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND (Browser)                             │
+│                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                         index.html                                │    │
+│  │  • Drag & Drop Upload                                            │    │
+│  │  • Image Preview                                                 │    │
+│  │  • Analysis Trigger                                              │    │
+│  │  • Results Visualization                                         │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                   │                                         │
+│                                   │ HTTP POST /api/analyze                  │
+│                                   ▼                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         BACKEND (Flask Server)                              │
+│                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                           app.py                                  │    │
+│  │  • Receives image upload                                         │    │
+│  │  • Coordinates all analyzers                                     │    │
+│  │  • Combines results                                              │    │
+│  │  • Returns JSON response                                         │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                   │                                         │
+│                     ┌─────────────┼─────────────┐                          │
+│                     │             │             │                           │
+│                     ▼             ▼             ▼                           │
+│  ┌──────────────────────┬──────────────────────┬───────────────────────┐  │
+│  │   SIGNAL ANALYSIS    │  STRUCTURAL ANALYSIS │   SEMANTIC ANALYSIS   │  │
+│  └──────────────────────┴──────────────────────┴───────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            ANALYSIS MODULES                                 │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────┐     │
+│  │  Layer 1: SIGNAL LEVEL                                           │     │
+│  │  ┌────────────────────────────────────────────────────────────┐  │     │
+│  │  │  frequency_analyzer.py                                     │  │     │
+│  │  │  • 2D FFT Transformation                                   │  │     │
+│  │  │  • High-frequency energy ratio                             │  │     │
+│  │  │  • Radial spectrum distribution                            │  │     │
+│  │  │  • Peak anomaly detection                                  │  │     │
+│  │  │  • Spectral entropy                                        │  │     │
+│  │  │  ➜ Output: frequency_score (0-100)                        │  │     │
+│  │  └────────────────────────────────────────────────────────────┘  │     │
+│  │                                                                   │     │
+│  │  ┌────────────────────────────────────────────────────────────┐  │     │
+│  │  │  noise_analyzer.py                                         │  │     │
+│  │  │  • High-pass filtering                                     │  │     │
+│  │  │  • Noise residual extraction                               │  │     │
+│  │  │  • Noise uniformity measure                                │  │     │
+│  │  │  • Spatial correlation                                     │  │     │
+│  │  │  • Grain structure analysis                                │  │     │
+│  │  │  ➜ Output: noise_score (0-100)                            │  │     │
+│  │  └────────────────────────────────────────────────────────────┘  │     │
+│  │                                                                   │     │
+│  │  ┌────────────────────────────────────────────────────────────┐  │     │
+│  │  │  pixel_analyzer.py                                         │  │     │
+│  │  │  • Color distribution analysis                             │  │     │
+│  │  │  • Saturation statistics                                   │  │     │
+│  │  │  • Brightness distribution                                 │  │     │
+│  │  │  • Contrast ratio                                          │  │     │
+│  │  │  • Histogram entropy                                       │  │     │
+│  │  │  ➜ Output: pixel_score (0-100)                            │  │     │
+│  │  └────────────────────────────────────────────────────────────┘  │     │
+│  │                                                                   │     │
+│  │  ┌────────────────────────────────────────────────────────────┐  │     │
+│  │  │  metadata_analyzer.py                                      │  │     │
+│  │  │  • EXIF data extraction                                    │  │     │
+│  │  │  • Camera model detection                                  │  │     │
+│  │  │  • Software identification                                 │  │     │
+│  │  │  • AI indicator checking                                   │  │     │
+│  │  │  • Authenticity verification                               │  │     │
+│  │  │  ➜ Output: metadata_score (0-100)                         │  │     │
+│  │  └────────────────────────────────────────────────────────────┘  │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────┐     │
+│  │  Layer 3: SEMANTIC LEVEL                                         │     │
+│  │  ┌────────────────────────────────────────────────────────────┐  │     │
+│  │  │  train_model.py + AIImageClassifier                        │  │     │
+│  │  │  ┌──────────────────────────────────────────────────────┐  │  │     │
+│  │  │  │  EfficientNet-B0 Backbone                            │  │  │     │
+│  │  │  │  • Pre-trained on ImageNet                           │  │  │     │
+│  │  │  │  • 5.3M parameters                                   │  │  │     │
+│  │  │  │  • Feature extraction                                │  │  │     │
+│  │  │  └──────────────────────────────────────────────────────┘  │  │     │
+│  │  │              ▼                                               │  │     │
+│  │  │  ┌──────────────────────────────────────────────────────┐  │  │     │
+│  │  │  │  Custom Classifier Head                              │  │  │     │
+│  │  │  │  • Dropout (0.3)                                     │  │  │     │
+│  │  │  │  • FC Layer (features → 512)                         │  │  │     │
+│  │  │  │  • ReLU Activation                                   │  │  │     │
+│  │  │  │  • Dropout (0.2)                                     │  │  │     │
+│  │  │  │  • FC Layer (512 → 5 classes)                        │  │  │     │
+│  │  │  └──────────────────────────────────────────────────────┘  │  │     │
+│  │  │              ▼                                               │  │     │
+│  │  │  ┌──────────────────────────────────────────────────────┐  │  │     │
+│  │  │  │  Output: 5-Class Prediction                          │  │  │     │
+│  │  │  │  0: Real                                             │  │  │     │
+│  │  │  │  1: Stable Diffusion                                 │  │  │     │
+│  │  │  │  2: Midjourney                                       │  │  │     │
+│  │  │  │  3: DALL-E                                           │  │  │     │
+│  │  │  │  4: Unknown AI                                       │  │  │     │
+│  │  │  │  ➜ Output: class + probabilities                    │  │  │     │
+│  │  │  └──────────────────────────────────────────────────────┘  │  │     │
+│  │  └────────────────────────────────────────────────────────────┘  │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SCORE COMBINATION ENGINE                            │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────┐     │
+│  │  combine_confidence_scores()                                     │     │
+│  │                                                                   │     │
+│  │  Final Score = 0.40 × model_score      (40%)  ◄── Deep Learning │     │
+│  │              + 0.15 × frequency_score  (15%)  ◄── FFT Analysis   │     │
+│  │              + 0.15 × noise_score      (15%)  ◄── Noise Pattern  │     │
+│  │              + 0.15 × pixel_score      (15%)  ◄── Pixel Stats    │     │
+│  │              + 0.15 × metadata_score   (15%)  ◄── EXIF Data      │     │
+│  │  ─────────────────────────────────────────────────────────────  │     │
+│  │  TOTAL: 100%                                                      │     │
+│  │                                                                   │     │
+│  │  Classification Rules:                                            │     │
+│  │  • Score ≥ 70  →  REAL IMAGE        (High Confidence)           │     │
+│  │  • Score 50-69 →  UNCERTAIN         (Medium Confidence)          │     │
+│  │  • Score < 50  →  AI-GENERATED      (High Confidence)           │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              DATA FLOW                                      │
+│                                                                             │
+│  User Upload                                                                │
+│       │                                                                     │
+│       ▼                                                                     │
+│  Save to static/uploads/                                                   │
+│       │                                                                     │
+│       ▼                                                                     │
+│  Load Image (OpenCV + PIL)                                                 │
+│       │                                                                     │
+│       ├──────────────┬──────────────┬──────────────┬──────────────┐       │
+│       ▼              ▼              ▼              ▼              ▼        │
+│  Frequency      Noise         Metadata       Pixels        Model          │
+│  Analyzer       Analyzer      Analyzer       Analyzer     Predictor       │
+│       │              │              │              │              │        │
+│       └──────────────┴──────────────┴──────────────┴──────────────┘       │
+│                                     │                                      │
+│                                     ▼                                      │
+│                          Combine Scores (Weighted)                        │
+│                                     │                                      │
+│                                     ▼                                      │
+│                          Generate JSON Response                            │
+│                                     │                                      │
+│                                     ▼                                      │
+│                          Return to Frontend                                │
+│                                     │                                      │
+│                                     ▼                                      │
+│                          Display Results + Charts                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           TRAINING PIPELINE                                 │
+│                                                                             │
+│  Dataset Preparation                                                        │
+│       │                                                                     │
+│       ▼                                                                     │
+│  datasets/train/                                                           │
+│  ├── real/                    ◄── Real camera images                      │
+│  ├── stable_diffusion/        ◄── SD-generated images                     │
+│  ├── midjourney/              ◄── MJ-generated images                     │
+│  ├── dalle/                   ◄── DALL-E images                           │
+│  └── unknown/                 ◄── Other AI images                         │
+│       │                                                                     │
+│       ▼                                                                     │
+│  Data Augmentation                                                         │
+│  • Random horizontal flip                                                  │
+│  • Random rotation (±10°)                                                 │
+│  • Color jitter (brightness, contrast, saturation)                        │
+│  • Resize to 224×224                                                      │
+│  • Normalize                                                               │
+│       │                                                                     │
+│       ▼                                                                     │
+│  Split 80/20 (Train/Validation)                                           │
+│       │                                                                     │
+│       ▼                                                                     │
+│  EfficientNet Training                                                     │
+│  • Optimizer: Adam (lr=0.001)                                             │
+│  • Loss: CrossEntropyLoss                                                 │
+│  • Epochs: 15                                                              │
+│  • Batch Size: 16                                                          │
+│  • LR Scheduler: ReduceLROnPlateau                                        │
+│       │                                                                     │
+│       ▼                                                                     │
+│  Save Best Model                                                           │
+│  └── models/best_model.pth                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                              KEY TECHNOLOGIES
+═══════════════════════════════════════════════════════════════════════════════
+
+Backend:
+• Python 3.8+
+• Flask (Web Server)
+• PyTorch (Deep Learning)
+• EfficientNet (CNN Architecture)
+• OpenCV (Image Processing)
+• NumPy, SciPy (Numerical Computing)
+• Piexif (EXIF Metadata)
+
+Frontend:
+• HTML5
+• CSS3 (Gradient Design)
+• Vanilla JavaScript (No framework)
+• Fetch API (Backend Communication)
+
+Signal Processing:
+• 2D Fast Fourier Transform (FFT)
+• High-pass Filtering
+• Statistical Analysis
+• Histogram Analysis
+
+Machine Learning:
+• Transfer Learning
+• Data Augmentation
+• Cross-Entropy Loss
+• Adam Optimization
+
+═══════════════════════════════════════════════════════════════════════════════
